@@ -20,8 +20,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    
-    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -37,7 +35,7 @@
 
 - (IBAction)playRemoteVideo:(id)sender
 {
-    NSURL *videoURL = [NSURL URLWithString:@"http://krtv.qiniudn.com/150522nextapp"];
+    NSURL *videoURL = [NSURL URLWithString:@"http://static.tinydust.cn/assets/cloudbox-promote.mp4"];
     [self playVideoWithURL:videoURL];
 }
 
@@ -45,14 +43,14 @@
 {
     if (!self.videoController) {
         CGFloat width = [UIScreen mainScreen].bounds.size.width;
-        self.videoController = [[KRVideoPlayerController alloc] initWithFrame:CGRectMake(0, 0, width, width*(9.0/16.0))];
+        self.videoController = [[KRVideoPlayerController alloc] initWithFrame:CGRectMake(0, 0, width, width*(9.0/16.0)) contentURL:url];
         __weak typeof(self)weakSelf = self;
         [self.videoController setDimissCompleteBlock:^{
             weakSelf.videoController = nil;
         }];
         [self.videoController showInWindow];
+        [self.videoController play];
     }
-    self.videoController.contentURL = url;
 }
 
 @end

@@ -13,7 +13,7 @@
 @property (nonatomic, copy)void(^dimissCompleteBlock)(void);
 @property (nonatomic, assign) CGRect frame;
 
-- (instancetype)initWithFrame:(CGRect)frame;
+- (instancetype)initWithFrame:(CGRect)frame contentURL:(NSURL *)url;
 - (void)showInWindow;
 - (void)dismiss;
 

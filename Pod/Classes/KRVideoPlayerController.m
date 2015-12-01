@@ -23,14 +23,12 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
 
 @implementation KRVideoPlayerController
 
-- (void)dealloc
-{
+- (void)dealloc {
     [self cancelObserver];
 }
 
-- (instancetype)initWithFrame:(CGRect)frame
-{
-    self = [super init];
+- (instancetype)initWithFrame:(CGRect)frame contentURL:(NSURL *)url {
+    self = [super initWithContentURL:url];
     if (self) {
         self.view.frame = frame;
         self.view.backgroundColor = [UIColor blackColor];
@@ -45,8 +43,7 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
 
 #pragma mark - Override Method
 
-- (void)setContentURL:(NSURL *)contentURL
-{
+- (void)setContentURL:(NSURL *)contentURL {
     [self stop];
     [super setContentURL:contentURL];
     [self play];
@@ -54,8 +51,7 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
 
 #pragma mark - Publick Method
 
-- (void)showInWindow
-{
+- (void)showInWindow {
     UIWindow *keyWindow = [[UIApplication sharedApplication] keyWindow];
     if (!keyWindow) {
         keyWindow = [[[UIApplication sharedApplication] windows] firstObject];
@@ -70,8 +66,7 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
     [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
 }
 
-- (void)dismiss
-{
+- (void)dismiss {
     [self stopDurationTimer];
     [self stop];
     [UIView animateWithDuration:kVideoPlayerControllerAnimationTimeinterval animations:^{
@@ -87,21 +82,18 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
 
 #pragma mark - Private Method
 
-- (void)configObserver
-{
+- (void)configObserver {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onMPMoviePlayerPlaybackStateDidChangeNotification) name:MPMoviePlayerPlaybackStateDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onMPMoviePlayerLoadStateDidChangeNotification) name:MPMoviePlayerLoadStateDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onMPMoviePlayerReadyForDisplayDidChangeNotification) name:MPMoviePlayerReadyForDisplayDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onMPMovieDurationAvailableNotification) name:MPMovieDurationAvailableNotification object:nil];
 }
 
-- (void)cancelObserver
-{
+- (void)cancelObserver {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)configControlAction
-{
+- (void)configControlAction {
     [self.videoControl.playButton addTarget:self action:@selector(playButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [self.videoControl.pauseButton addTarget:self action:@selector(pauseButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [self.videoControl.closeButton addTarget:self action:@selector(closeButtonClick) forControlEvents:UIControlEventTouchUpInside];
@@ -115,8 +107,7 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
     [self monitorVideoPlayback];
 }
 
-- (void)onMPMoviePlayerPlaybackStateDidChangeNotification
-{
+- (void)onMPMoviePlayerPlaybackStateDidChangeNotification {
     if (self.playbackState == MPMoviePlaybackStatePlaying) {
         self.videoControl.pauseButton.hidden = NO;
         self.videoControl.playButton.hidden = YES;
@@ -133,44 +124,37 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
     }
 }
 
-- (void)onMPMoviePlayerLoadStateDidChangeNotification
-{
+- (void)onMPMoviePlayerLoadStateDidChangeNotification {
     if (self.loadState & MPMovieLoadStateStalled) {
         [self.videoControl.indicatorView startAnimating];
     }
 }
 
-- (void)onMPMoviePlayerReadyForDisplayDidChangeNotification
-{
+- (void)onMPMoviePlayerReadyForDisplayDidChangeNotification {
     
 }
 
-- (void)onMPMovieDurationAvailableNotification
-{
+- (void)onMPMovieDurationAvailableNotification {
     [self setProgressSliderMaxMinValues];
 }
 
-- (void)playButtonClick
-{
+- (void)playButtonClick {
     [self play];
     self.videoControl.playButton.hidden = YES;
     self.videoControl.pauseButton.hidden = NO;
 }
 
-- (void)pauseButtonClick
-{
+- (void)pauseButtonClick {
     [self pause];
     self.videoControl.playButton.hidden = NO;
     self.videoControl.pauseButton.hidden = YES; 
 }
 
-- (void)closeButtonClick
-{
+- (void)closeButtonClick {
     [self dismiss];
 }
 
-- (void)fullScreenButtonClick
-{
+- (void)fullScreenButtonClick {
     if (self.isFullscreenMode) {
         return;
     }
@@ -188,8 +172,7 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
     }];
 }
 
-- (void)shrinkScreenButtonClick
-{
+- (void)shrinkScreenButtonClick {
     if (!self.isFullscreenMode) {
         return;
     }
@@ -246,34 +229,29 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
     self.videoControl.timeLabel.text = [NSString stringWithFormat:@"%@/%@",timeElapsedString,timeRmainingString];
 }
 
-- (void)startDurationTimer
-{
+- (void)startDurationTimer {
     self.durationTimer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(monitorVideoPlayback) userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop] addTimer:self.durationTimer forMode:NSDefaultRunLoopMode];
 }
 
-- (void)stopDurationTimer
-{
+- (void)stopDurationTimer {
     [self.durationTimer invalidate];
 }
 
-- (void)fadeDismissControl
-{
+- (void)fadeDismissControl {
     [self.videoControl animateHide];
 }
 
 #pragma mark - Property
 
-- (KRVideoPlayerControlView *)videoControl
-{
+- (KRVideoPlayerControlView *)videoControl {
     if (!_videoControl) {
         _videoControl = [[KRVideoPlayerControlView alloc] init];
     }
     return _videoControl;
 }
 
-- (UIView *)movieBackgroundView
-{
+- (UIView *)movieBackgroundView {
     if (!_movieBackgroundView) {
         _movieBackgroundView = [UIView new];
         _movieBackgroundView.alpha = 0.0;
@@ -282,8 +260,7 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
     return _movieBackgroundView;
 }
 
-- (void)setFrame:(CGRect)frame
-{
+- (void)setFrame:(CGRect)frame {
     [self.view setFrame:frame];
     [self.videoControl setFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
     [self.videoControl setNeedsLayout];
