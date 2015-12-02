@@ -26,6 +26,8 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
 
 @end
 
+static const CGFloat kOffset = 40.0f;
+
 @implementation KRVideoPlayerController
 
 - (void)dealloc {
@@ -276,6 +278,46 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
         CGPoint translation = [recognizer translationInView:self.view.superview];
         self.view.center = CGPointMake(self.lastCoord.x + translation.x,
                                        self.lastCoord.y + translation.y);
+
+//        we can't let player fly out of the screen totally.
+        if (recognizer.state == UIGestureRecognizerStateEnded) {
+            CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
+            CGFloat screenHeight = [UIScreen mainScreen].bounds.size.height;
+            CGFloat screenX = 0.0f;
+            CGFloat screenY = 0.0f;
+            CGPoint finalPoint = self.view.frame.origin;
+            BOOL needOffset = NO;
+            
+            if (self.view.frame.origin.x + self.view.bounds.size.width <= screenX + kOffset) {
+                //            move back right a little bit
+                finalPoint = CGPointMake(screenX + kOffset - self.view.bounds.size.width, finalPoint.y);
+                needOffset = YES;
+            }
+            
+            if (self.view.frame.origin.y + self.view.bounds.size.height <= screenY + kOffset) {
+                //            move back down a little bit
+                finalPoint = CGPointMake(finalPoint.x, screenY + kOffset - self.view.bounds.size.height);
+                needOffset = YES;
+            }
+            
+            if (self.view.frame.origin.x >= screenWidth - kOffset) {
+                //            move back left a little bit
+                finalPoint = CGPointMake(screenWidth - kOffset, finalPoint.y);
+                needOffset = YES;
+            }
+            
+            if (self.view.frame.origin.y >= screenHeight - kOffset) {
+                //            move back up a little bit
+                finalPoint = CGPointMake(finalPoint.x, screenHeight - kOffset);
+                needOffset = YES;
+            }
+            
+            if (needOffset) {
+                [UIView animateWithDuration:0.05f animations:^() {
+                    self.view.frame = CGRectMake(finalPoint.x, finalPoint.y, self.view.bounds.size.width, self.view.bounds.size.height);
+                }];
+            }
+        }
     } else {
 //        Adjust volume and brightness in full screen mode
         if (recognizer.state == UIGestureRecognizerStateEnded || recognizer.state == UIGestureRecognizerStateBegan) {
