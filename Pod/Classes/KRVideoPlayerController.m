@@ -10,6 +10,7 @@
 #import "KRVideoPlayerControlView.h"
 
 static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
+static const CGFloat kScreenEdgeOffset = 35.0f;
 
 @interface KRVideoPlayerController ()
 
@@ -25,8 +26,6 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
 @property BOOL adjustingBrightness;
 
 @end
-
-static const CGFloat kOffset = 40.0f;
 
 @implementation KRVideoPlayerController
 
@@ -46,6 +45,12 @@ static const CGFloat kOffset = 40.0f;
         self.controlStyle = MPMovieControlStyleNone;
         [self.view addSubview:self.videoControl];
         self.videoControl.frame = self.view.bounds;
+        
+        self.view.layer.shadowOffset = CGSizeMake(0, 3);
+        self.view.layer.shadowRadius = 6.0f;
+        self.view.layer.shadowColor = [UIColor blackColor].CGColor;
+        self.view.layer.shadowOpacity = 0.6f;
+        
         [self configObservers];
         [self configGestures];
         [self configControlActions];
@@ -288,32 +293,32 @@ static const CGFloat kOffset = 40.0f;
             CGPoint finalPoint = self.view.frame.origin;
             BOOL needOffset = NO;
             
-            if (self.view.frame.origin.x + self.view.bounds.size.width <= screenX + kOffset) {
+            if (self.view.frame.origin.x + self.view.bounds.size.width <= screenX + kScreenEdgeOffset) {
                 //            move back right a little bit
-                finalPoint = CGPointMake(screenX + kOffset - self.view.bounds.size.width, finalPoint.y);
+                finalPoint = CGPointMake(screenX + kScreenEdgeOffset - self.view.bounds.size.width, finalPoint.y);
                 needOffset = YES;
             }
             
-            if (self.view.frame.origin.y + self.view.bounds.size.height <= screenY + kOffset) {
+            if (self.view.frame.origin.y + self.view.bounds.size.height <= screenY + kScreenEdgeOffset) {
                 //            move back down a little bit
-                finalPoint = CGPointMake(finalPoint.x, screenY + kOffset - self.view.bounds.size.height);
+                finalPoint = CGPointMake(finalPoint.x, screenY + kScreenEdgeOffset - self.view.bounds.size.height);
                 needOffset = YES;
             }
             
-            if (self.view.frame.origin.x >= screenWidth - kOffset) {
+            if (self.view.frame.origin.x >= screenWidth - kScreenEdgeOffset) {
                 //            move back left a little bit
-                finalPoint = CGPointMake(screenWidth - kOffset, finalPoint.y);
+                finalPoint = CGPointMake(screenWidth - kScreenEdgeOffset, finalPoint.y);
                 needOffset = YES;
             }
             
-            if (self.view.frame.origin.y >= screenHeight - kOffset) {
+            if (self.view.frame.origin.y >= screenHeight - kScreenEdgeOffset) {
                 //            move back up a little bit
-                finalPoint = CGPointMake(finalPoint.x, screenHeight - kOffset);
+                finalPoint = CGPointMake(finalPoint.x, screenHeight - kScreenEdgeOffset);
                 needOffset = YES;
             }
             
             if (needOffset) {
-                [UIView animateWithDuration:0.05f animations:^() {
+                [UIView animateWithDuration:0.2f animations:^() {
                     self.view.frame = CGRectMake(finalPoint.x, finalPoint.y, self.view.bounds.size.width, self.view.bounds.size.height);
                 }];
             }
