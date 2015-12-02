@@ -18,6 +18,11 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
 @property (nonatomic, assign) BOOL isFullscreenMode;
 @property (nonatomic, assign) CGRect originFrame;
 @property (nonatomic, strong) NSTimer *durationTimer;
+@property (nonatomic, strong) UIPanGestureRecognizer *panGestureRecognizer;
+@property (nonatomic, strong) UITapGestureRecognizer *tapGestureRecognizer;
+@property CGPoint lastCoord;
+@property BOOL adjustingVolume;
+@property BOOL adjustingBrightness;
 
 @end
 
@@ -25,18 +30,23 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
 
 - (void)dealloc {
     [self cancelObserver];
+    [self removeGestures];
 }
 
 - (instancetype)initWithFrame:(CGRect)frame contentURL:(NSURL *)url {
     self = [super initWithContentURL:url];
     if (self) {
+        [self prepareToPlay];
+
         self.view.frame = frame;
         self.view.backgroundColor = [UIColor blackColor];
+        
         self.controlStyle = MPMovieControlStyleNone;
         [self.view addSubview:self.videoControl];
         self.videoControl.frame = self.view.bounds;
-        [self configObserver];
-        [self configControlAction];
+        [self configObservers];
+        [self configGestures];
+        [self configControlActions];
     }
     return self;
 }
@@ -82,18 +92,32 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
 
 #pragma mark - Private Method
 
-- (void)configObserver {
+- (void)configObservers {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onMPMoviePlayerPlaybackStateDidChangeNotification) name:MPMoviePlayerPlaybackStateDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onMPMoviePlayerLoadStateDidChangeNotification) name:MPMoviePlayerLoadStateDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onMPMoviePlayerReadyForDisplayDidChangeNotification) name:MPMoviePlayerReadyForDisplayDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onMPMovieDurationAvailableNotification) name:MPMovieDurationAvailableNotification object:nil];
 }
 
+- (void)configGestures {
+    self.panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(dragging:)];
+    self.tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapping:)];
+    self.tapGestureRecognizer.numberOfTapsRequired = 2;
+
+    [self.view addGestureRecognizer:self.panGestureRecognizer];
+    [self.view addGestureRecognizer:self.tapGestureRecognizer];
+}
+
 - (void)cancelObserver {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)configControlAction {
+- (void)removeGestures {
+    [self.view removeGestureRecognizer:self.panGestureRecognizer];
+    [self.view removeGestureRecognizer:self.tapGestureRecognizer];
+}
+
+- (void)configControlActions {
     [self.videoControl.playButton addTarget:self action:@selector(playButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [self.videoControl.pauseButton addTarget:self action:@selector(pauseButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [self.videoControl.closeButton addTarget:self action:@selector(closeButtonClick) forControlEvents:UIControlEventTouchUpInside];
@@ -242,6 +266,60 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
     [self.videoControl animateHide];
 }
 
+- (void)dragging:(UIPanGestureRecognizer *)recognizer {
+    if (!self.isFullscreenMode) {
+//        Move player with finger moves
+        if (recognizer.state == UIGestureRecognizerStateBegan) {
+            self.lastCoord = self.view.center;
+        }
+
+        CGPoint translation = [recognizer translationInView:self.view.superview];
+        self.view.center = CGPointMake(self.lastCoord.x + translation.x,
+                                       self.lastCoord.y + translation.y);
+    } else {
+//        Adjust volume and brightness in full screen mode
+        if (recognizer.state == UIGestureRecognizerStateEnded || recognizer.state == UIGestureRecognizerStateBegan) {
+            self.adjustingBrightness = NO;
+            self.adjustingVolume = NO;
+        }
+        
+        CGPoint location = [recognizer locationInView:self.view];
+        CGPoint velocity = [recognizer velocityInView:self.view];
+
+        if (location.x > ([UIScreen mainScreen].bounds.size.height / 2)) {
+            if (self.adjustingBrightness) {
+                return;
+            }
+
+            self.adjustingVolume = YES;
+            
+            CGFloat volume = [[MPMusicPlayerController applicationMusicPlayer] volume];
+            if (volume >= 0 && volume <= 1.0f) {
+                [[MPMusicPlayerController applicationMusicPlayer] setVolume:(volume + (-velocity.y)/7000.f)];
+            }
+        } else {
+            if (self.adjustingVolume) {
+                return;
+            }
+
+            self.adjustingBrightness = YES;
+            
+            CGFloat brightness = [[UIScreen mainScreen] brightness];
+            if (brightness >= 0 && brightness <= 1.0f ) {
+                [[UIScreen mainScreen] setBrightness:(brightness + -velocity.y/7000.f)];
+            }
+        }
+    }
+}
+
+- (void)tapping:(UITapGestureRecognizer *)recognizer {
+    if (self.playbackState == MPMoviePlaybackStatePlaying) {
+        [self pause];
+    } else {
+        [self play];
+    }
+}
+
 #pragma mark - Property
 
 - (KRVideoPlayerControlView *)videoControl {
@@ -266,6 +344,5 @@ static const CGFloat kVideoPlayerControllerAnimationTimeinterval = 0.3f;
     [self.videoControl setNeedsLayout];
     [self.videoControl layoutIfNeeded];
 }
-
 
 @end
