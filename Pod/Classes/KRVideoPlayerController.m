@@ -192,7 +192,7 @@ static const CGFloat kScreenEdgeOffset = 35.0f;
     self.originFrame = self.view.frame;
     CGFloat height = [[UIScreen mainScreen] bounds].size.width;
     CGFloat width = [[UIScreen mainScreen] bounds].size.height;
-    CGRect frame = CGRectMake((height - width) / 2, (width - height) / 2, width, height);;
+    CGRect frame = CGRectMake((height - width) / 2, (width - height) / 2, width, height);
     [UIView animateWithDuration:0.3f animations:^{
         self.frame = frame;
         [self.view setTransform:CGAffineTransformMakeRotation(M_PI_2)];
@@ -360,10 +360,14 @@ static const CGFloat kScreenEdgeOffset = 35.0f;
 }
 
 - (void)tapping:(UITapGestureRecognizer *)recognizer {
-    if (self.playbackState == MPMoviePlaybackStatePlaying) {
-        [self pause];
+    if (self.isFullscreenMode) {
+        if (self.playbackState == MPMoviePlaybackStatePlaying) {
+            [self pause];
+        } else {
+            [self play];
+        }
     } else {
-        [self play];
+        [self fullScreenButtonClick];
     }
 }
 
