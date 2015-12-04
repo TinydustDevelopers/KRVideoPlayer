@@ -24,6 +24,7 @@ static const CGFloat kScreenEdgeOffset = 35.0f;
 @property CGPoint lastCoord;
 @property BOOL adjustingVolume;
 @property BOOL adjustingBrightness;
+@property BOOL adjustingPlayBackTime;
 
 @end
 
@@ -324,48 +325,109 @@ static const CGFloat kScreenEdgeOffset = 35.0f;
             }
         }
     } else {
-//        Adjust volume and brightness in full screen mode
+//        Adjust volume, brightness, playback in full screen mode
+        CGPoint location = [recognizer locationInView:self.view];
+        if (recognizer.state == UIGestureRecognizerStateEnded) {
+            [self.videoControl autoFadeOutControlBar];
+            
+            if (self.adjustingPlayBackTime) {
+                [self setCurrentPlaybackTime:floor(self.videoControl.progressSlider.value)];
+                [self play];
+                self.lastCoord = CGPointZero;
+            }
+        }
+        if (recognizer.state == UIGestureRecognizerStateBegan) {
+            self.lastCoord = location;
+        }
         if (recognizer.state == UIGestureRecognizerStateEnded || recognizer.state == UIGestureRecognizerStateBegan) {
             self.adjustingBrightness = NO;
             self.adjustingVolume = NO;
+            self.adjustingPlayBackTime = NO;
         }
-        
-        CGPoint location = [recognizer locationInView:self.view];
+
+        if ([UIScreen mainScreen].bounds.size.width - location.y <= self.videoControl.bottomBar.bounds.size.height) {
+            return;
+        }
+
         CGPoint velocity = [recognizer velocityInView:self.view];
-
-        if (location.x > ([UIScreen mainScreen].bounds.size.height / 2)) {
-            if (self.adjustingBrightness) {
-                return;
-            }
-
-            self.adjustingVolume = YES;
-            
+        
+        if (self.adjustingVolume) {
             CGFloat volume = [[MPMusicPlayerController applicationMusicPlayer] volume];
             if (volume >= 0 && volume <= 1.0f) {
                 [[MPMusicPlayerController applicationMusicPlayer] setVolume:(volume + (-velocity.y)/7000.f)];
             }
-        } else {
-            if (self.adjustingVolume) {
-                return;
-            }
-
-            self.adjustingBrightness = YES;
             
+            return;
+        }
+        
+        if (self.adjustingBrightness) {
             CGFloat brightness = [[UIScreen mainScreen] brightness];
             if (brightness >= 0 && brightness <= 1.0f ) {
                 [[UIScreen mainScreen] setBrightness:(brightness + -velocity.y/7000.f)];
             }
+            
+            return;
+        }
+        
+        if (self.adjustingPlayBackTime) {
+            CGFloat distance = location.x - self.lastCoord.x;
+
+            double currentTime = self.currentPlaybackTime;
+
+            currentTime = currentTime + distance * self.duration / 300.0f;
+
+            if (currentTime < 0) {
+                currentTime = 0;
+            }
+            
+            if (currentTime > self.duration) {
+                currentTime = self.duration;
+            }
+            
+            [self.videoControl.progressSlider setValue:currentTime animated:YES];
+
+            double totalTime = floor(self.duration);
+            [self setTimeLabelValues:currentTime totalTime:totalTime];
+
+            return;
+        }
+
+        if (fabs(velocity.x) - fabs(velocity.y) >= 50.0f) {
+//            pan left or right, start adjusting play back time
+            [self pause];
+            [self.videoControl animateShow];
+
+            self.adjustingPlayBackTime = YES;
+
+            return;
+        }
+
+        if (fabs(velocity.y) - fabs(velocity.x) >= 50.0f) {
+//            pan up or down, start adjusting volume or brightness
+            if (location.x > ([UIScreen mainScreen].bounds.size.height / 2)) {
+                self.adjustingVolume = YES;
+                return;
+            } else {
+                self.adjustingBrightness = YES;
+                return;
+            }
+            
+            return;
         }
     }
 }
 
 - (void)tapping:(UITapGestureRecognizer *)recognizer {
     if (self.isFullscreenMode) {
+        [self.videoControl animateShow];
+
         if (self.playbackState == MPMoviePlaybackStatePlaying) {
             [self pause];
         } else {
             [self play];
         }
+
+        [self.videoControl animateHide];
     } else {
         [self fullScreenButtonClick];
     }

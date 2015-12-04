@@ -9,7 +9,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "KRVideoPlayer"
-  s.version          = "1.0.7"
+  s.version          = "1.0.8"
   s.summary          = "A simple video player like weico"
   s.description      = <<-DESC
                        A video player like weico.

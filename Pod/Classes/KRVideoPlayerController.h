@@ -8,7 +8,7 @@
 
 @import MediaPlayer;
 
-@interface KRVideoPlayerController : MPMoviePlayerController
+@interface KRVideoPlayerController : MPMoviePlayerController <UIGestureRecognizerDelegate>
 
 @property (nonatomic, copy)void(^dimissCompleteBlock)(void);
 @property (nonatomic, assign) CGRect frame;
