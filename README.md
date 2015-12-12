@@ -1,13 +1,12 @@
-# KRVideoPlayer
+# YJVideoPlayer
 
-[![CI Status](https://travis-ci.org/36Kr-Mobile/KRVideoPlayer.svg)](https://travis-ci.org/aidenluo/KRVideoPlayer)
-[![Version](https://img.shields.io/cocoapods/v/KRVideoPlayer.svg?style=flat)](http://cocoapods.org/pods/KRVideoPlayer)
-[![License](https://img.shields.io/cocoapods/l/KRVideoPlayer.svg?style=flat)](http://cocoapods.org/pods/KRVideoPlayer)
-[![Platform](https://img.shields.io/cocoapods/p/KRVideoPlayer.svg?style=flat)](http://cocoapods.org/pods/KRVideoPlayer)
+[![Version](https://img.shields.io/cocoapods/v/YJVideoPlayer.svg?style=flat)](http://cocoapods.org/pods/YJVideoPlayer)
+[![License](https://img.shields.io/cocoapods/l/YJVideoPlayer.svg?style=flat)](http://cocoapods.org/pods/YJVideoPlayer)
+[![Platform](https://img.shields.io/cocoapods/p/YJVideoPlayer.svg?style=flat)](http://cocoapods.org/pods/YJVideoPlayer)
 
 ## Screenshot
 
-![screenshot](kr_player.gif)
+![screenshot](yj_player.gif)
 
 ## Usage
 
@@ -16,7 +15,7 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 Create player and set frame:
 
 ```
-self.videoController = [[KRVideoPlayerController alloc] initWithFrame:CGRectMake(0, 0, width, width*(9.0/16.0))];
+self.videoController = [[YJVideoPlayerController alloc] initWithFrame:CGRectMake(0, 0, width, width*(9.0/16.0))];
 ```
 
 Set video path:
@@ -37,11 +36,11 @@ Show it:
 
 ## Installation
 
-KRVideoPlayer is available through [CocoaPods](http://cocoapods.org). To install
+YJVideoPlayer is available through [CocoaPods](http://cocoapods.org). To install
 it, simply add the following line to your Podfile:
 
 ```
-pod "KRVideoPlayer"
+pod "YJVideoPlayer"
 ```
 
 ## Author
@@ -50,7 +49,8 @@ Programing by [aidenluo](http://weibo.com/1840543654)
 
 Design by [cheyi](http://weibo.com/322160605)
 
+Modified by [Jury](http://www.pwhack.me)
+
 ## License
 
-KRVideoPlayer is available under the MIT license. See the LICENSE file for more info.
-
+YJVideoPlayer is available under the MIT license. See the LICENSE file for more info.

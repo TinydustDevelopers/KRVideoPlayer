@@ -9,12 +9,12 @@
 
 Pod::Spec.new do |s|
   s.name             = "YJVideoPlayer"
-  s.version          = "1.0.9"
+  s.version          = "1.1.0"
   s.summary          = "The native player in the CloudBox web browser"
   s.description      = <<-DESC
                        A video player like weico.
 
-                       ![screenshot](kr_player.gif)
+                       ![screenshot](yj_player.gif)
 
 
                        DESC
@@ -22,7 +22,6 @@ Pod::Spec.new do |s|
   s.license          = 'MIT'
   s.author           = { "PortWatcher" => "jury@tinydust.cn" }
   s.source           = { :git => "https://github.com/TinydustDevelopers/YJVideoPlayer.git", :tag => s.version.to_s }
-  s.social_media_url = 'http://weibo.com/1840543654/profile'
 
   s.platform     = :ios, '6.0'
   s.requires_arc = true
