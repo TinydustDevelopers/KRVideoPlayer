@@ -8,9 +8,9 @@
 #
 
 Pod::Spec.new do |s|
-  s.name             = "KRVideoPlayer"
-  s.version          = "1.0.8"
-  s.summary          = "A simple video player like weico"
+  s.name             = "YJVideoPlayer"
+  s.version          = "1.0.9"
+  s.summary          = "The native player in the CloudBox web browser"
   s.description      = <<-DESC
                        A video player like weico.
 
@@ -18,10 +18,10 @@ Pod::Spec.new do |s|
 
 
                        DESC
-  s.homepage         = "https://github.com/36Kr-Mobile/KRVideoPlayer"
+  s.homepage         = "https://github.com/TinydustDevelopers/YJVideoPlayer"
   s.license          = 'MIT'
-  s.author           = { "aidenluo" => "luoqi@36kr.com" }
-  s.source           = { :git => "https://github.com/36Kr-Mobile/KRVideoPlayer.git", :tag => s.version.to_s }
+  s.author           = { "PortWatcher" => "jury@tinydust.cn" }
+  s.source           = { :git => "https://github.com/TinydustDevelopers/YJVideoPlayer.git", :tag => s.version.to_s }
   s.social_media_url = 'http://weibo.com/1840543654/profile'
 
   s.platform     = :ios, '6.0'

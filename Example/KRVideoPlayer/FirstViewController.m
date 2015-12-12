@@ -12,6 +12,7 @@
 @interface FirstViewController ()
 
 @property (nonatomic, strong) KRVideoPlayerController *videoController;
+@property (nonatomic, strong) MPMoviePlayerController *controller;
 
 @end
 
